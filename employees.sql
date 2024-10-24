@@ -42,7 +42,6 @@ group by emp_manager_salary.position;
 
 ####### Task 2 ########
 ####### Found employees are currently employeed and their departments ######
-# Have a look of dept_emp to see whether any current employee works in different department
 
 # Get most recent salaries of a current employee
 select s1.emp_no, s1.salary, s1.from_date, s1.to_date
@@ -77,6 +76,7 @@ on current_dept.emp_no=current_salary.emp_no
 where current_salary.salary is not null;
 
 
+
 ######## Task 3 #######
 ######## check the salary raise of each employee ##########
 select e.first_name, e.last_name, max(s.salary)-min(s.salary) as diff_salary, 
@@ -98,4 +98,23 @@ join salaries s
 on e.emp_no=s.emp_no
 group by e.emp_no
 limit 50;
+
+###############SQL WINDOW FUNCTIONS##############
+select *,
+       row_number() over(partition by emp_no order by salary desc) as row_num
+from salaries;
+
+select *,
+       row_number() over w as row_num
+from employees 
+window w as (partition by first_name order by emp_no asc);
+
+# find the second highest salary every empoyee ever signed a contract for
+select e_s.emp_no, e_s.salary as second_highest_salary
+from 
+(select *,
+        row_number() over w as row_num
+ from salaries
+ window w as (partition by emp_no order by salary desc)) as e_s
+ where e_s.row_num=2;
 
